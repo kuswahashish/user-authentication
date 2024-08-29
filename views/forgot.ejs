@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password</title>
+  <link rel="stylesheet" href="/styles.css"> <!-- Link to your CSS file -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <h1>Forgot Your Password?</h1>
+  <form id="forgotPasswordForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+    <button type="submit">Send Reset Link</button>
+  </form>
+  <p>Remember your password? <a href="/login">Login here</a></p>
+
+  <!-- Embedded JavaScript for handling form submission -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('forgotPasswordForm');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+
+        const email = document.getElementById('email').value;
+
+        try {
+          const response = await axios.post('/api/users/auth/forgot-password', {
+            email
+          }, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          // Handle successful response
+          console.log('Reset link sent:', response.data.message);
+          alert('A password reset link has been sent to your email.');
+
+          // Optionally, redirect to a different page
+          // window.location.href = '/login';
+
+        } catch (error) {
+          // Handle error
+          console.error('Failed to send reset link:', error.response.data);
+          alert('Failed to send reset link: ' + (error.response.data.message || 'An error occurred'));
+        }
+      });
+    });
+  </script>
+</body>
+</html>

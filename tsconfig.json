@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext", // Use "ESNext" or "commonjs" based on your module system preference
+    "moduleResolution": "NodeNext", // Matches the module system
+    "target": "ES6", // Targets ES6 JavaScript
+    "sourceMap": true, // Generates source maps for debugging
+    "outDir": "./dist", // Output directory for compiled JavaScript
+    "rootDir": "./", // Root directory of TypeScript source files; set to the project root
+    "strict": true, // Enables all strict type-checking options
+    "esModuleInterop": true, // Ensures compatibility with CommonJS modules
+    "skipLibCheck": true, // Skips type checking of declaration files
+    "allowImportingTsExtensions": false, // Disable if not needed, otherwise set to true for importing .ts files directly
+    "resolveJsonModule": true, // Allows importing JSON modules
+    "noEmit": false // Ensure JavaScript files are emitted
+  },
+  "include": [
+    "app/**/*.ts", // Include all .ts files in the app folder
+    "app.ts" // Include the app.ts file outside the app folder
+  ],
+  "exclude": [
+    "node_modules", // Excludes node_modules folder from compilation
+    "**/*.test.ts" // Optionally exclude test files
+  ]
+}

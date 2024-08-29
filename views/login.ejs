@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="./styles.css"> <!-- Link to a CSS file if needed -->
+  <!-- Include Axios from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+    <button type="submit">Login</button>
+  </form>
+  <p>Don't have an account? <a href="register">Register here</a></p>
+
+  <!-- Embedded JavaScript for handling form submission -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('loginForm');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+          const response = await axios.post('/api/users/auth/login', {
+            email,
+            password
+          }, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          window.location.href = `verify?email=${encodeURIComponent(response.data.data.email)}`;
+
+          // Redirect after successful login (optional)
+
+        } catch (error) {
+          // Handle error
+          console.error('Login failed:', error);
+          // You might want to show an error message here
+          alert('Login failed: ' + (error || 'An error occurred'));
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
