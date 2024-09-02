@@ -10,6 +10,7 @@ router.post('/forgot-password', userAuthControl.forgotPassword)
 router.post('/reset-password', authToken.verifyAuthToken, userAuthControl.resetPassword)
 router.put('/change-password', authToken.verifyAuthToken, userAuthControl.changePassword)
 router.get('/logout', authToken.verifyAuthToken, userAuthControl.logOut)
+router.get('/token', userAuthControl.getToken)
 router.post('/otp-verify', userAuthControl.otpVerify)
 
 // view routes

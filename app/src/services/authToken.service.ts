@@ -15,9 +15,9 @@ const verifyAuthToken: RequestHandler = (req: any, res, next) => {
         const decoded = jwt.verify(token, config.SECURITY_TOKEN as string);
         req.user = decoded;
         next();
-    } catch (err: any) {
-        console.log(err);
-        return responseHandler.sendResponse(req, res, resCode.BAD_REQUEST, err)
+    } catch (error: any) {
+        console.log(error);
+        return responseHandler.handleInternalError(error, next);
     }
 };
 

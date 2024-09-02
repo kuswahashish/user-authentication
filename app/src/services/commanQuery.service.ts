@@ -28,7 +28,7 @@ class commonQuery {
     /* GET SPECIFIC DATA AS FILTER FROM TABLE */
     async getData(filter = {}, projection = {}): Promise<any[]> {
         try {
-            const items = await this.model.findOne(filter, projection);
+            const items = await this.model.findOne(filter, projection).lean();
             return items;
         } catch (error) {
             throw error;
@@ -55,15 +55,26 @@ class commonQuery {
         }
     };
 
-    /* UPDATE DATA IN TABLE */
-    async updateData(id:string,data: Record<string, any>,): Promise<any | null> {
+    /* DELETE DATA BY CONDITION FROM TABLE */
+    async deleteData(condition: any): Promise<any | null> {
         try {
-            const item = await this.model.findByIdAndUpdate(id, data,{ new: true })
+            const item = await this.model.deleteOne(condition);
             return item;
         } catch (error) {
             throw error;
         }
     };
+    /* UPDATE DATA IN TABLE */
+    async updateData(id: string, data: Record<string, any>,): Promise<any | null> {
+        try {
+            const item = await this.model.findByIdAndUpdate(id, data, { new: true })
+            return item;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+
 }
 
 export default commonQuery;

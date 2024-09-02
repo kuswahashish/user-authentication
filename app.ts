@@ -1,7 +1,7 @@
 import express from 'express';
 import logger from "morgan";
 import compress from 'compression';
-
+require('log-timestamp');
 import connectDB from './app/config/dbConnection'
 
 //main routes

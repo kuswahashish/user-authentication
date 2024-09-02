@@ -30,7 +30,8 @@ export const msg = {
         "usernameAlreadyExist": "Username already exist",
         "usernameDoNotExist": "Username does not exist",
         "deletedUser": "User not currently accessible",
-        "passwordUpdated": "User Password has been updated."
+        "passwordUpdated": "User Password has been updated.",
+        "tokenGenerated": "Token generated."
     },
     "otp": {
         "otpSend": "OTP send successfully.",

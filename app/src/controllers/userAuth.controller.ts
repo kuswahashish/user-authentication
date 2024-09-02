@@ -10,11 +10,16 @@ import { comparePasswords, hashPassword } from "../services/password.service";
 import { responseHandler } from "../services/responseHandler.service";
 import { emailHandler } from "../services/emailHandler.service";
 import otpModel from "../models/otp.model";
+import { get } from "../../config/config";
+import jwt from "jsonwebtoken";
+import { log } from "console";
+import z from "zod";
+
+const config = get(process.env.NODE_ENV);
 
 const userLogin = async (req: any, res: any, next: any) => {
     try {
         const payload: any = userSchemaValidation.loginSchema.parse(req.body);
-        /* GET DATA OF CUSTOMER */
         let control = new commonQuery(userModel);
         let filter = { email: payload.email };
         let projection = {};
@@ -49,11 +54,14 @@ const userLogin = async (req: any, res: any, next: any) => {
                     "ref_token": refToken
                 })
             }
-            return responseHandler.respondWithSuccessData(res, resCode.OK, msg.loginSuccess, { token, ...userDetails });
+            return responseHandler.respondWithSuccessData(res, resCode.OK, msg.loginSuccess, { token, refToken, ...userDetails });
         }
     }
     catch (error: any) {
         console.error(error, "Error");
+        if (error instanceof z.ZodError) {
+            return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, error.errors);
+        }
         return responseHandler.handleInternalError(error, next);
     }
 };
@@ -92,6 +100,9 @@ const resetPassword = async (req: any, res: any, next: any) => {
     }
     catch (error: any) {
         console.error(error, "Error");
+        if (error instanceof z.ZodError) {
+            return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, error.errors);
+        }
         return responseHandler.handleInternalError(error, next);
     }
 };
@@ -114,6 +125,9 @@ const changePassword = async (req: any, res: any, next: any) => {
     }
     catch (error: any) {
         console.error(error, "Error");
+        if (error instanceof z.ZodError) {
+            return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, error.errors);
+        }
         return responseHandler.handleInternalError(error, next);
     }
 };
@@ -166,7 +180,8 @@ const otpVerify = async (req: any, res: any, next: any) => {
 const logOut = async (req: any, res: any, next: any) => {
     try {
         const authControl = new commonQuery(userAuthModel)
-        await authControl.deleteDataById(req.user.id)
+        console.log(req.user.id);
+        await authControl.deleteData({ user_id: req.user.id })
         return responseHandler.respondWithSuccessNoData(res, resCode.OK, msg.auth.loggedOut)
     }
     catch (error: any) {
@@ -175,6 +190,22 @@ const logOut = async (req: any, res: any, next: any) => {
     }
 };
 
+const getToken = async (req: any, res: any, next: any) => {
+    try {
+        const refreshToken = req.header("ref_token");
+
+        const payload = await jwt.verify(refreshToken, config.SECURITY_TOKEN as string)
+
+        const token = await authToken.generateRefreshToken(payload)
+
+        return responseHandler.respondWithSuccessData(res, resCode.OK, msg.auth.tokenGenerated, token)
+    }
+    catch (error: any) {
+        console.error(error, "Error");
+        return responseHandler.handleInternalError(error, next);
+    }
+};
+
 export const userAuthControl = {
-    userLogin, forgotPassword, resetPassword, changePassword, otpVerify, logOut
+    userLogin, forgotPassword, resetPassword, changePassword, otpVerify, logOut, getToken
 }

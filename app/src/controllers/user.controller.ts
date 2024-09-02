@@ -8,7 +8,7 @@ import { msg } from '../../constants/en';
 import commonQuery from '../services/commanQuery.service';
 import { hashPassword } from '../services/password.service';
 
-export const createUser = async (req: Request, res: Response, next: any) => {
+const createUser = async (req: Request, res: Response, next: any) => {
   try {
     if (req.file) {
       const filePath: any = req.file
@@ -25,11 +25,14 @@ export const createUser = async (req: Request, res: Response, next: any) => {
     if (error.name === 'MongoServerError' && error.code === 11000) {
       return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, msg.auth.emailAlreadyExist);
     }
+    if (error instanceof z.ZodError) {
+      return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, error.errors);
+    }
     return responseHandler.handleInternalError(error, next);
   }
 };
 
-export const getUsers = async (req: Request, res: Response, next: any) => {
+const getUsers = async (req: Request, res: Response, next: any) => {
   try {
     let control = new commonQuery(User)
     const users = await control.getAllData()
@@ -40,7 +43,7 @@ export const getUsers = async (req: Request, res: Response, next: any) => {
   }
 };
 
-export const getUserById = async (req: Request, res: Response, next: any) => {
+const getUserById = async (req: Request, res: Response, next: any) => {
   try {
     let control = new commonQuery(User)
     const user = await control.getData({ _id: req.params.id }, {
@@ -60,7 +63,7 @@ export const getUserById = async (req: Request, res: Response, next: any) => {
   }
 };
 
-export const updateUser = async (req: Request, res: Response, next: any) => {
+const updateUser = async (req: Request, res: Response, next: any) => {
   try {
     if (req.file) {
       const filePath: any = req.file
@@ -77,11 +80,14 @@ export const updateUser = async (req: Request, res: Response, next: any) => {
 
   } catch (error: any) {
     console.error(error, "Error");
+    if (error instanceof z.ZodError) {
+      return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, error.errors);
+    }
     return responseHandler.handleInternalError(error, next);
   }
 };
 
-export const deleteUser = async (req: Request, res: Response, next: any) => {
+const deleteUser = async (req: Request, res: Response, next: any) => {
   try {
 
     let control = new commonQuery(User)
@@ -96,3 +102,8 @@ export const deleteUser = async (req: Request, res: Response, next: any) => {
     return responseHandler.handleInternalError(error, next);
   }
 };
+
+export const userControl = {
+  createUser, getUsers, getUserById, updateUser, deleteUser
+}
+
