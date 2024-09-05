@@ -38,6 +38,20 @@ export const msg = {
         "otpVerified": "OTP verified successfully.",
         "otpnotExist": "OTP doesnt exist.",
         "otpWrong": "OTP is wrong!."
-
+    },
+    "product": {
+        "created": "Product added sucessfully.",
+        "updated": "Product updated sucessfully.",
+        "deleted": "Product deleted sucessfully.",
+        "fetched": "Product fetched sucessfully.",
+        "notfound": "Product not found!"
+    },
+    "cart": {
+        "created": "Cart added sucessfully.",
+        "updated": "Cart updated sucessfully.",
+        "deleted": "Cart deleted sucessfully.",
+        "fetched": "Cart fetched sucessfully.",
+        "notfound": "Cart not found!",
+        "itemNotFound": "Item not found in your cart"
     }
 }

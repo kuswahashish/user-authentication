@@ -1,3 +1,5 @@
+import { record } from "zod";
+
 class commonQuery {
     private model;
 
@@ -28,7 +30,7 @@ class commonQuery {
     /* GET SPECIFIC DATA AS FILTER FROM TABLE */
     async getData(filter = {}, projection = {}): Promise<any[]> {
         try {
-            const items = await this.model.findOne(filter, projection).lean();
+            const items = await this.model.findOne(filter, projection)
             return items;
         } catch (error) {
             throw error;
@@ -74,6 +76,27 @@ class commonQuery {
         }
     };
 
+    /* JOIN WITH ANOTHER MODEL USING LOOKUP (MongoDB) */
+    async lookupData(pipeline: any[]): Promise<any[]> {
+        try {
+            console.log(pipeline, "pipeline");
+
+            const results = await this.model.aggregate(pipeline).exec();
+            return results;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /* UPDATE DATA IN TABLE FOR THE DELETE ITEM FROM CART*/
+    async findAndUpdateOperation(filter: any, operation: Record<string, any>,): Promise<any | null> {
+        try {
+            const item = await this.model.findOneAndUpdate(filter, operation, { new: true })
+            return item;
+        } catch (error) {
+            throw error;
+        }
+    };
 
 }
 
