@@ -31,6 +31,17 @@ router.get('/forgot-password', (req, res) => {
 router.get('/reset-password', (req, res) => {
   res.render('reset');
 })
+
+router.get('/home', (req, res) => {
+  res.render('home');
+})
+router.get('/add-product', (req, res) => {
+  res.render('add-product');
+})
+router.get('/add-user', (req, res) => {
+  res.render('add-user');
+})
+
 export default router;
 
 

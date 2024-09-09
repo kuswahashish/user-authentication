@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
+  <title>Add User</title>
   <!-- Include Bootstrap CSS from CDN -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   
@@ -34,7 +34,7 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="text-center mb-4">Register</h1>
+    <h1 class="text-center mb-4">Add User</h1>
     <form action="/api/users/" method="POST" enctype="multipart/form-data">
       <div class="form-group">
         <label for="first_name" class="form-label">First Name:</label>
@@ -64,9 +64,8 @@
         <label for="profile_picture" class="form-label">Profile Picture:</label>
         <input type="file" class="form-control-file" id="profile_picture" name="profile_picture" accept="image/*">
       </div>
-      <button type="submit" class="btn btn-custom btn-block">Register</button>
+      <button type="submit" class="btn btn-custom btn-block">Add User</button>
     </form>
-    <p class="text-center mt-3">Already have an account? <a href="login">Login here</a></p>
   </div>
 </body>
 </html>
