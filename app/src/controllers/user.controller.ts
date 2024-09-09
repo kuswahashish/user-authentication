@@ -34,6 +34,8 @@ const createUser = async (req: Request, res: Response, next: any) => {
 
 const getUsers = async (req: Request, res: Response, next: any) => {
   try {
+    console.log("user-list");
+
     let control = new commonQuery(User)
     const users = await control.getAllData()
     return responseHandler.respondWithSuccessData(res, resCode.OK, msg.dataFetchSuccess, users)
@@ -45,6 +47,8 @@ const getUsers = async (req: Request, res: Response, next: any) => {
 
 const getUserById = async (req: Request, res: Response, next: any) => {
   try {
+    console.log("user-by-id");
+
     let control = new commonQuery(User)
     const user = await control.getData({ _id: req.params.id }, {
       first_name: 1,

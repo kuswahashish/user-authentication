@@ -1,0 +1,43 @@
+<!-- product-list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product List</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Product List</h2>
+    <div id="productCards" class="row">
+      <!-- Product cards will be dynamically injected here -->
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await axios.get('/api/products');
+        const products = response.data;
+        const productCards = document.getElementById('productCards');
+        productCards.innerHTML = products.map(product => `
+          <div class="col-md-4">
+            <div class="card mb-4">
+              <img src="${product.images[0] || 'https://via.placeholder.com/150'}" class="card-img-top" alt="${product.name}">
+              <div class="card-body">
+                <h5 class="card-title">${product.name}</h5>
+                <p class="card-text">${product.description}</p>
+                <p class="card-text">Quantity: ${product.quantity}</p>
+                <p class="card-text">Price: $${product.price.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load products:', error);
+      }
+    });
+  </script>
+</body>
+</html>
