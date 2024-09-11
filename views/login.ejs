@@ -75,10 +75,16 @@
               'Content-Type': 'application/json'
             }
           });
-
+          console.log(response)
+          if(response.data.data.is_2FA)
+          {
           window.location.href = `verify?email=${encodeURIComponent(response.data.data.email)}`;
+          }else{
+          localStorage.setItem('token', response.data.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.data));
 
-          // Redirect after successful login (optional)
+          window.location.href = 'home';
+          }
 
         } catch (error) {
           // Handle error

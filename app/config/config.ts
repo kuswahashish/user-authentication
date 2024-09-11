@@ -11,6 +11,10 @@ var config: any = {
             SMTP_PORT: "465",
             EMAIL_USERNAME: "tanviransari13@gmail.com",
             EMAIL_PASSWORD: "xcbj jlzg kpbj amby"
+        },
+        STRIPE: {
+            PUBLISHABLE_KEY: "pk_test_51Pxj1lG27ccilI2VjYeCwRUHTK2tKNwEaTSMHxTKWjnyd8pjDMuaNQ4PnQjb0CAmF7U68XWYfMWXYnLB3jOFYYQ1002hQ56Ym8",
+            SECRET_KEY: "sk_test_51Pxj1lG27ccilI2VCYR6XmoSaNM7f5X5dh5U1Bzf1rNp2KOpUDEmErrx7B2qUxCgTzYcuTeMd5RIj0aZDcOwIW6x00DzLMjtrz"
         }
     },
     development: {
@@ -27,6 +31,10 @@ var config: any = {
             SMTP_PORT: "465",
             EMAIL_USERNAME: "tanviransari13@gmail.com",
             EMAIL_PASSWORD: "xcbj jlzg kpbj amby"
+        },
+        STRIPE: {
+            PUBLISHABLE_KEY: "pk_test_51Pxj1lG27ccilI2VjYeCwRUHTK2tKNwEaTSMHxTKWjnyd8pjDMuaNQ4PnQjb0CAmF7U68XWYfMWXYnLB3jOFYYQ1002hQ56Ym8",
+            SECRET_KEY: "sk_test_51Pxj1lG27ccilI2VCYR6XmoSaNM7f5X5dh5U1Bzf1rNp2KOpUDEmErrx7B2qUxCgTzYcuTeMd5RIj0aZDcOwIW6x00DzLMjtrz"
         }
     }
 }

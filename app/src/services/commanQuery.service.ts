@@ -20,7 +20,7 @@ class commonQuery {
     /* GET ALL DATA FROM TABLE */
     async getAllData(): Promise<any[]> {
         try {
-            const items = await this.model.find();
+            const items = await this.model.find().lean();
             return items;
         } catch (error) {
             throw error;
@@ -61,6 +61,16 @@ class commonQuery {
     async deleteData(condition: any): Promise<any | null> {
         try {
             const item = await this.model.deleteOne(condition);
+            return item;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    /* DELETE Y DATA BY CONDITION FROM TABLE */
+    async deleteManyData(condition: any): Promise<any | null> {
+        try {
+            const item = await this.model.deleteMany(condition);
             return item;
         } catch (error) {
             throw error;

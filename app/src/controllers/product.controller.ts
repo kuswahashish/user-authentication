@@ -90,7 +90,8 @@ const updateProduct = async (req: Request, res: Response, next: any) => {
     try {
         const parsedBody = productSchemaValidation.updateSchema.parse(req.body);
         let control = new commonQuery(productModel)
-
+        if (parsedBody.remove_product_picture && parsedBody.remove_product_picture.length > 0)
+            await control.deleteData({ _id: parsedBody.remove_product_picture })
         const product = await control.updateData(req.params.id, parsedBody)
         if (!product) {
             return responseHandler.respondWithFailed(res, resCode.NOT_FOUND, msg.product.notfound)

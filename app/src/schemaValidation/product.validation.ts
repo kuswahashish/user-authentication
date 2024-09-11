@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { any, z } from 'zod';
 
 const createSchema = z.object({
     product_name: z.string().min(1, 'Product name is required'),
@@ -12,6 +12,7 @@ const updateSchema = z.object({
     last_name: z.string().min(1, 'Product name is required').optional(),
     product_price: z.string().min(1, 'Product price is required').optional(),
     product_description: z.string().min(1, 'Product description is required').optional(),
+    remove_product_picture: z.array(z.string()).optional()
 });
 
 

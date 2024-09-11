@@ -35,6 +35,8 @@ const updateCart = async (req: any, res: Response, next: any) => {
                 cartData.items.push(productData);
             }
         }
+        console.log(cartData, "cartData");
+
         await cartData.save()
 
         return responseHandler.respondWithSuccessData(res, resCode.CREATED, msg.product.created, productData)
@@ -50,10 +52,12 @@ const updateCart = async (req: any, res: Response, next: any) => {
 const decreaseProductQuantity = async (req: any, res: Response, next: any) => {
     try {
         let control = new commonQuery(cartModel)
-        let cartData: any = await control.getData({ user_id: req.user.id })
+        let cartData: any = await control.getData({ user_id: new mongoose.Types.ObjectId(req.user.id) })
         if (!cartData) {
             return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, msg.cart.notfound);
         }
+        console.log(cartData, "cartData");
+
         const existingItem = cartData.items.find((item: any) => {
             console.log(item.product_id, req.params.id, item.product_id == req.params.id);
 
@@ -65,7 +69,7 @@ const decreaseProductQuantity = async (req: any, res: Response, next: any) => {
         if (existingItem.product_quantity == 1) {
             await control.findAndUpdateOperation({ user_id: req.user.id }, { $pull: { items: { product_id: req.params.id } } })
         } else {
-            existingItem.product_quantity += 1
+            existingItem.product_quantity -= 1
         }
 
         await cartData.save()
@@ -80,7 +84,7 @@ const decreaseProductQuantity = async (req: any, res: Response, next: any) => {
 const removeProductFromCart = async (req: any, res: Response, next: any) => {
     try {
         let control = new commonQuery(cartModel)
-        let cartData: any = await control.getData({ user_id: req.user.id })
+        let cartData: any = await control.getData({ user_id: new mongoose.Types.ObjectId(req.user.id) })
         if (!cartData) {
             return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, msg.cart.notfound);
         }
@@ -92,12 +96,39 @@ const removeProductFromCart = async (req: any, res: Response, next: any) => {
     }
 };
 
-
-const getProductById = async (req: Request, res: Response, next: any) => {
+const clearCart = async (req: any, res: Response, next: any) => {
     try {
-        let control = new commonQuery(productModel)
+        let control = new commonQuery(cartModel)
+        let cartData: any = await control.deleteData({ user_id: req.user.id })
+        if (!cartData) {
+            return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, msg.cart.notfound);
+        }
+        return responseHandler.respondWithSuccessNoData(res, resCode.OK, msg.cart.deleted)
+    } catch (error: any) {
+        console.error(error, "Error");
+        return responseHandler.handleInternalError(error, next);
+    }
+};
+
+const myCart = async (req: any, res: Response, next: any) => {
+    try {
+        let control = new commonQuery(cartModel)
         let aggregateQuery = [
-            { $match: { _id: new mongoose.Types.ObjectId(req.params.id) } },
+            { $match: { user_id: new mongoose.Types.ObjectId(req.user.id) } }, // Match the cart based on the user ID
+            {
+                $unwind: "$items" // Deconstruct the array of items in the cart
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'items.product_id',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            },
             {
                 $lookup: {
                     from: 'product_pictures',
@@ -105,57 +136,60 @@ const getProductById = async (req: Request, res: Response, next: any) => {
                     foreignField: 'product_id',
                     as: 'images'
                 }
+            },
+            {
+                $unwind: {
+                    path: "$images",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    user_id: 1,
+                    total_price: 1,
+                    "items.product_id": 1,
+                    "items.product_quantity": 1,
+                    "items.product_price": 1,
+                    "productDetails.product_name": 1,
+                    "productDetails.product_description": 1,
+                    "productDetails.product_price": 1,
+                    "images.image_url": 1
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    user_id: { $first: "$user_id" },
+                    total_price: { $first: "$total_price" },
+                    items: {
+                        $push: {
+                            product_id: "$items.product_id",
+                            product_quantity: "$items.product_quantity",
+                            product_price: "$items.product_price",
+                            product_name: "$productDetails.product_name",
+                            product_description: "$productDetails.product_description",
+                            product_price_original: "$productDetails.product_price",
+                            product_image: "$images.image_url" // Include the product image URL
+                        }
+                    }
+                }
             }
+        ];
 
-        ]
-        const productDetails = await control.lookupData(aggregateQuery)
-        if (!productDetails) {
-            return responseHandler.respondWithFailed(res, resCode.NOT_FOUND, msg.product.notfound)
+
+
+        let cartData: any = await control.lookupData(aggregateQuery)
+        if (!cartData) {
+            return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, msg.cart.notfound);
         }
-        return responseHandler.respondWithSuccessData(res, resCode.OK, msg.product.fetched, productDetails)
+        return responseHandler.respondWithSuccessData(res, resCode.OK, msg.cart.fetched, cartData)
     } catch (error: any) {
         console.error(error, "Error");
         return responseHandler.handleInternalError(error, next);
     }
 };
-
-const updateProduct = async (req: Request, res: Response, next: any) => {
-    try {
-        const parsedBody = productSchemaValidation.updateSchema.parse(req.body);
-        let control = new commonQuery(productModel)
-
-        const product = await control.updateData(req.params.id, parsedBody)
-        if (!product) {
-            return responseHandler.respondWithFailed(res, resCode.NOT_FOUND, msg.product.notfound)
-        }
-        return responseHandler.respondWithSuccessData(res, resCode.OK, msg.product.updated, product)
-
-    } catch (error: any) {
-        console.error(error, "Error");
-        if (error instanceof z.ZodError) {
-            return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, error.errors);
-        }
-        return responseHandler.handleInternalError(error, next);
-    }
-};
-
-const deleteProduct = async (req: Request, res: Response, next: any) => {
-    try {
-
-        let control = new commonQuery(productModel)
-
-        const product = await control.deleteDataById(req.params.id);
-        if (!product) {
-            return responseHandler.respondWithFailed(res, resCode.NOT_FOUND, msg.product.notfound)
-        }
-        return responseHandler.respondWithSuccessNoData(res, resCode.OK, msg.product.deleted)
-    } catch (error: any) {
-        console.error(error, "Error");
-        return responseHandler.handleInternalError(error, next);
-    }
-};
-
 export const cartController = {
-    updateCart, decreaseProductQuantity, removeProductFromCart, getProductById, updateProduct, deleteProduct
+    updateCart, decreaseProductQuantity, removeProductFromCart, clearCart, myCart
 }
 

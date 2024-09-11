@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Product</title>
+  <title>Profile</title>
   <!-- Include Bootstrap CSS from CDN -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -21,19 +21,18 @@
       padding: 10px 20px;
     }
     .container {
-      max-width: 500px;
+      max-width: 600px;
       padding: 20px;
       background: #ffffff;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       margin-top: 20px;
     }
-    .form-label {
-      font-weight: bold;
-    }
-    .btn-custom {
-      background-color: #007bff;
-      color: #ffffff;
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
     }
   </style>
 </head>
@@ -84,30 +83,20 @@
   </header>
 
   <div class="container">
-    <h2 class="text-center mb-4">Add Product</h2>
-    <form id="addProductForm">
-      <div class="form-group">
-        <label for="product_name" class="form-label">Product Name:</label>
-        <input type="text" class="form-control" id="product_name" name="product_name" required>
-      </div>
-      <div class="form-group">
-        <label for="product_description" class="form-label">Product Description:</label>
-        <textarea class="form-control" id="product_description" name="product_description" rows="3" required></textarea>
-      </div>
-      <div class="form-group">
-        <label for="product_quantity" class="form-label">Product Quantity:</label>
-        <input type="number" class="form-control" id="product_quantity" name="product_quantity" required>
-      </div>
-      <div class="form-group">
-        <label for="product_price" class="form-label">Product Price:</label>
-        <input type="number" class="form-control" id="product_price" name="product_price" step="0.01" required>
-      </div>
-      <div class="form-group">
-        <label for="product_images" class="form-label">Product Images:</label>
-        <input type="file" class="form-control-file" id="file" name="file" multiple>
-      </div>
-      <button type="submit" class="btn btn-custom btn-block">Add Product</button>
-    </form>
+    <h1 class="text-center mb-4">Profile</h1>
+    <div class="text-center">
+      <img id="profilePicture" src="" alt="Profile Picture" class="profile-img">
+    </div>
+    <div class="mt-4">
+      <h4>Details</h4>
+      <p><strong>First Name:</strong> <span id="firstName"></span></p>
+      <p><strong>Middle Name:</strong> <span id="middleName"></span></p>
+      <p><strong>Last Name:</strong> <span id="lastName"></span></p>
+      <p><strong>Email:</strong> <span id="email"></span></p>
+      <p><strong>Phone Number:</strong> <span id="phoneNumber"></span></p>
+      <p><strong>Age:</strong> <span id="age"></span></p>
+    </div>
+    
   </div>
 
   <!-- Include Bootstrap JS and dependencies -->
@@ -115,9 +104,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   
-  <!-- Include Axios -->
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
   <!-- Custom JavaScript -->
   <script>
      document.getElementById('logoutButton').addEventListener('click', function(event) {
@@ -142,26 +128,20 @@
         });
     });
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('addProductForm').addEventListener('submit', async (event) => {
-        event.preventDefault(); // Prevent the default form submission
-        const formData = new FormData(event.target);
-        
-        try {
-          const response = await axios.post('/api/products', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          
-          if (response.status === 201) {
-            alert('Product added successfully!');
-            window.location.href = 'view-products'; // Redirect to the view products page
-          }
-        } catch (error) {
-          console.error('Error adding product:', error);
-          alert('Failed to add product. Please try again.');
-        }
-      });
+      const user = JSON.parse(localStorage.getItem('user'));
+      console.log(user)
+      if (user) {
+        document.getElementById('profilePicture').src = `http://localhost:3002/${user.profile_picture}` || 'https://via.placeholder.com/120';
+        document.getElementById('firstName').textContent = user.first_name || '';
+        document.getElementById('middleName').textContent = user.middle_name || '';
+        document.getElementById('lastName').textContent = user.last_name || '';
+        document.getElementById('email').textContent = user.email || 'N/A';
+        document.getElementById('phoneNumber').textContent = user.phone_number || 'N/A';
+        document.getElementById('age').textContent = user.age || 'N/A';
+      } else {
+        alert('No user data found. Please log in.');
+        window.location.href = 'login'; // Redirect to login page if no user data
+      }
     });
   </script>
 </body>

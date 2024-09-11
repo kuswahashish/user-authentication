@@ -1,41 +1,11 @@
+<!-- product-view.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Product</title>
-  <!-- Include Bootstrap CSS from CDN -->
+  <title>Product View</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  
-  <!-- Internal CSS -->
-  <style>
-    body {
-      background-color: #f8f9fa;
-    }
-    .header {
-      background-color: #ffffff;
-      border-bottom: 1px solid #e9ecef;
-    }
-    .header .navbar {
-      padding: 10px 20px;
-    }
-    .container {
-      max-width: 500px;
-      padding: 20px;
-      background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-top: 20px;
-    }
-    .form-label {
-      font-weight: bold;
-    }
-    .btn-custom {
-      background-color: #007bff;
-      color: #ffffff;
-    }
-  </style>
 </head>
 <body>
   <header class="header">
@@ -82,43 +52,14 @@
       </div>
     </nav>
   </header>
-
   <div class="container">
-    <h2 class="text-center mb-4">Add Product</h2>
-    <form id="addProductForm">
-      <div class="form-group">
-        <label for="product_name" class="form-label">Product Name:</label>
-        <input type="text" class="form-control" id="product_name" name="product_name" required>
-      </div>
-      <div class="form-group">
-        <label for="product_description" class="form-label">Product Description:</label>
-        <textarea class="form-control" id="product_description" name="product_description" rows="3" required></textarea>
-      </div>
-      <div class="form-group">
-        <label for="product_quantity" class="form-label">Product Quantity:</label>
-        <input type="number" class="form-control" id="product_quantity" name="product_quantity" required>
-      </div>
-      <div class="form-group">
-        <label for="product_price" class="form-label">Product Price:</label>
-        <input type="number" class="form-control" id="product_price" name="product_price" step="0.01" required>
-      </div>
-      <div class="form-group">
-        <label for="product_images" class="form-label">Product Images:</label>
-        <input type="file" class="form-control-file" id="file" name="file" multiple>
-      </div>
-      <button type="submit" class="btn btn-custom btn-block">Add Product</button>
-    </form>
+    <h2>Product Details</h2>
+    <div id="productDetails" class="row">
+      <!-- Product details will be dynamically injected here -->
+    </div>
   </div>
 
-  <!-- Include Bootstrap JS and dependencies -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  
-  <!-- Include Axios -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-  <!-- Custom JavaScript -->
   <script>
      document.getElementById('logoutButton').addEventListener('click', function(event) {
       event.preventDefault();
@@ -141,28 +82,74 @@
           alert('Failed to log out. Please try again.');
         });
     });
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('addProductForm').addEventListener('submit', async (event) => {
-        event.preventDefault(); // Prevent the default form submission
-        const formData = new FormData(event.target);
-        
-        try {
-          const response = await axios.post('/api/products', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          
-          if (response.status === 201) {
-            alert('Product added successfully!');
-            window.location.href = 'view-products'; // Redirect to the view products page
-          }
-        } catch (error) {
-          console.error('Error adding product:', error);
-          alert('Failed to add product. Please try again.');
-        }
-      });
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = urlParams.get('id');
+
+      try {
+  const response = await axios.get(`/api/product/${productId}`);
+  const product = response.data.data[0];  // Adjusted to access data array
+
+  if (response.data.status === 200) {  // Check status
+    const productDetails = document.getElementById('productDetails');
+    productDetails.innerHTML = `
+      <div class="col-md-6">
+        <!-- Bootstrap Carousel for Sliding Images -->
+        <div id="productImagesCarousel" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner">
+            ${product.images.map((image, index) => `
+              <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                <img src="http://localhost:3002/${image.product_picture}" class="d-block w-100" alt="Product Image ${index + 1}">
+              </div>
+            `).join('')}
+          </div>
+          <a class="carousel-control-prev" href="#productImagesCarousel" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#productImagesCarousel" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h3>${product.product_name}</h3>
+        <p>${product.product_description}</p>
+        <p>Quantity: ${product.product_quantity}</p>
+        <p>Price: $${product.product_price.toFixed(2)}</p>
+        <button class="btn btn-primary" onclick="addToCart('${product._id}', 1, ${product.product_price})">Add to Cart</button>
+      </div>
+    `;
+  } else {
+    console.error('Failed to fetch product details:', response.data.message);
+  }
+} catch (error) {
+  console.error('Failed to load product details:', error);
+}
+
     });
+
+    function addToCart(productId, quantity, price) {
+      axios.post('/api/cart', {
+        product_id: productId,
+        product_quantity: quantity,
+        product_price: price
+      }, {
+        headers: {
+          'token': localStorage.getItem('token')
+        }
+      })
+      .then(response => alert('Product added to cart successfully!'))
+      .catch(error => console.error('Error adding to cart:', error));
+    }
   </script>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 </body>
 </html>

@@ -8,36 +8,143 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
+  <header class="header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="home">Home</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <!-- Users Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="usersDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Users
+            </a>
+            <div class="dropdown-menu" aria-labelledby="usersDropdown">
+              <a class="dropdown-item" href="view-users"> Users</a>
+              <a class="dropdown-item" href="add-user">Add User</a>
+            </div>
+          </li>
+          <!-- Products Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="productsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Products
+            </a>
+            <div class="dropdown-menu" aria-labelledby="productsDropdown">
+              <a class="dropdown-item" href="view-product"> Products</a>
+              <a class="dropdown-item" href="add-product">Add Product</a>
+            </div>
+          </li>
+        </ul>
+        <a href="my-cart" class="nav-link">
+          <i class="fas fa-shopping-cart cart-icon" data-count="3"></i>
+        </a>
+        <!-- Profile Dropdown -->
+        <div class="dropdown">
+          <img src="https://via.placeholder.com/40" alt="Profile" id="profileImage" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileImage">
+            <a class="dropdown-item" href="user-profile"> Profile</a>
+            <a class="dropdown-item" href="edit-profile">Edit Profile</a>
+            <a class="dropdown-item" href="change-password">Change Password</a>
+
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
   <div class="container">
     <h2>Product List</h2>
     <div id="productCards" class="row">
       <!-- Product cards will be dynamically injected here -->
     </div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
+     document.getElementById('logoutButton').addEventListener('click', function(event) {
+      event.preventDefault();
+      const token = localStorage.getItem('token'); // Replace 'token' with the actual key if different
+
+      axios.get('/api/users/auth/logout',{
+        headers: {
+          token
+        }
+      })
+        .then(function(response) {
+          if (response.status === 200) {
+            // Successfully logged out, redirect to login page
+            localStorage.clear();
+            window.location.href = 'login';
+          }
+        })
+        .catch(function(error) {
+          console.error('Error logging out:', error);
+          alert('Failed to log out. Please try again.');
+        });
+    });
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const response = await axios.get('/api/products');
-        const products = response.data;
+        const response = await axios.get('/api/product');
+        const products = response.data.data; // Access the 'data' array from response
         const productCards = document.getElementById('productCards');
+        
         productCards.innerHTML = products.map(product => `
           <div class="col-md-4">
             <div class="card mb-4">
-              <img src="${product.images[0] || 'https://via.placeholder.com/150'}" class="card-img-top" alt="${product.name}">
+              <img src="http://localhost:3002/${product.images[0]?.product_picture || 'https://via.placeholder.com/150'}" class="card-img-top" alt="${product.product_name}">
               <div class="card-body">
-                <h5 class="card-title">${product.name}</h5>
-                <p class="card-text">${product.description}</p>
-                <p class="card-text">Quantity: ${product.quantity}</p>
-                <p class="card-text">Price: $${product.price.toFixed(2)}</p>
+                <h5 class="card-title">${product.product_name}</h5>
+                <p class="card-text">${product.product_description}</p>
+                <p class="card-text">Quantity: ${product.product_quantity}</p>
+                <p class="card-text">Price: $${product.product_price.toFixed(2)}</p>
+                <!-- Add to Cart Button -->
+                <button class="btn btn-primary add-to-cart-btn" 
+                        data-product-id="${product._id}"
+                        data-product-price="${product.product_price}">
+                  Add to Cart
+                </button>
+                <!-- View Product Button -->
+                <a href="product-detail?id=${product._id}" class="btn btn-primary">View Product</a>
               </div>
             </div>
           </div>
         `).join('');
+
+        // Event listener for Add to Cart button
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+          button.addEventListener('click', async (event) => {
+            const productId = event.target.getAttribute('data-product-id');
+            const productPrice = event.target.getAttribute('data-product-price');
+            
+            try {
+              // Send a POST request to add the product to the cart
+              const addToCartResponse = await axios.post('/api/cart', {
+                product_id: productId,
+                product_quantity: 1, // Default quantity
+                product_price: +productPrice // Product price
+              }, {
+                headers: {
+                  'token': localStorage.getItem('token')
+                }});
+              
+              alert('Product added to cart successfully!');
+            } catch (error) {
+              console.error('Failed to add product to cart:', error);
+              alert('Error adding product to cart.');
+            }
+          });
+        });
+
       } catch (error) {
         console.error('Failed to load products:', error);
       }
     });
   </script>
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 </body>
 </html>

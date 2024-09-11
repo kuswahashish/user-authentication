@@ -6,7 +6,8 @@
   <title>Home</title>
   <!-- Include Bootstrap CSS from CDN -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
   <!-- Internal CSS -->
   <style>
     body {
@@ -62,7 +63,7 @@
 <body>
   <header class="header">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Demo</a>
+      <a class="navbar-brand" href="home">Home</a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
           <!-- Users Dropdown -->
@@ -71,7 +72,7 @@
               Users
             </a>
             <div class="dropdown-menu" aria-labelledby="usersDropdown">
-              <a class="dropdown-item" href="view-users">View Users</a>
+              <a class="dropdown-item" href="view-users"> Users</a>
               <a class="dropdown-item" href="add-user">Add User</a>
             </div>
           </li>
@@ -81,19 +82,24 @@
               Products
             </a>
             <div class="dropdown-menu" aria-labelledby="productsDropdown">
-              <a class="dropdown-item" href="view-products">View Products</a>
+              <a class="dropdown-item" href="view-product"> Products</a>
               <a class="dropdown-item" href="add-product">Add Product</a>
             </div>
           </li>
         </ul>
+        <a href="my-cart" class="nav-link">
+          <i class="fas fa-shopping-cart cart-icon" data-count="3"></i>
+        </a>
         <!-- Profile Dropdown -->
         <div class="dropdown">
           <img src="https://via.placeholder.com/40" alt="Profile" id="profileImage" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileImage">
-            <a class="dropdown-item" href="/profile">View Profile</a>
-            <a class="dropdown-item" href="/edit-profile">Edit Profile</a>
+            <a class="dropdown-item" href="user-profile"> Profile</a>
+            <a class="dropdown-item" href="edit-profile">Edit Profile</a>
+            <a class="dropdown-item" href="change-password">Change Password</a>
+
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="/logout">Logout</a>
+            <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
           </div>
         </div>
       </div>
@@ -101,13 +107,37 @@
   </header>
   <main>
     <div class="welcome-text">
-      Welcome to Your Home Page
+      Welcome to Home Page
     </div>
   </main>
+  <script>
+    document.getElementById('logoutButton').addEventListener('click', function(event) {
+      event.preventDefault();
+      const token = localStorage.getItem('token'); // Replace 'token' with the actual key if different
 
+      axios.get('/api/users/auth/logout',{
+        headers: {
+          token
+        }
+      })
+        .then(function(response) {
+          if (response.status === 200) {
+            // Successfully logged out, redirect to login page
+            localStorage.clear();
+            window.location.href = 'login';
+          }
+        })
+        .catch(function(error) {
+          console.error('Error logging out:', error);
+          alert('Failed to log out. Please try again.');
+        });
+    });
+  </script>
   <!-- Include Bootstrap JS and dependencies -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 </body>
 </html>

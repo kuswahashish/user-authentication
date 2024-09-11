@@ -19,7 +19,9 @@ const app = express()
 
 app.use(express.json());
 app.set('view engine', 'ejs');
-app.use('/public', express.static(path.join(__dirname, '../public')));
+app.use('/public', express.static(path.join(__dirname, '/public')));
+console.log(path.join(__dirname, '../public'));
+
 
 app.use(logger('dev'));
 if (config.NODE_ENV === 'development') {

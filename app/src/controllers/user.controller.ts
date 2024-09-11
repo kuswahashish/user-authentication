@@ -35,8 +35,12 @@ const createUser = async (req: Request, res: Response, next: any) => {
 const getUsers = async (req: Request, res: Response, next: any) => {
   try {
     console.log("user-list");
-
+    let whereClause = {}, order, offset, limit
     let control = new commonQuery(User)
+    let aggregateQuery = [{ $match: whereClause },
+    { $sort: order },
+    { $skip: offset },
+    { $limit: limit },]
     const users = await control.getAllData()
     return responseHandler.respondWithSuccessData(res, resCode.OK, msg.dataFetchSuccess, users)
   } catch (error: any) {

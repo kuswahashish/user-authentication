@@ -24,7 +24,7 @@ const userLogin = async (req: any, res: any, next: any) => {
         let filter = { email: payload.email };
         let projection = {};
         let userDetails: any = await control.getData(filter, projection)
-
+        userDetails = userDetails.toObject()
         const isMatch = await comparePasswords(payload.password, userDetails.password);
         if (!isMatch) {
             return responseHandler.respondWithFailed(res, resCode.BAD_REQUEST, msg.auth.passwordInvalid);
